@@ -15,7 +15,7 @@ function getRandomReels() {
 const Container = styled.div`
   width: 90vw;
   max-width: 400px;
-  margin: 2rem auto;
+  margin: 0 auto;
   padding: 1.5rem;
   background: ${({ theme }) => theme.colors.bg};
   color: ${({ theme }) => theme.colors.text};
@@ -116,7 +116,8 @@ const Button = styled.button`
 `;
 
 export default function GameController() {
-  const [balance, setBalance] = useState(100);
+  const initialBalance = 100;
+  const [balance, setBalance] = useState(initialBalance);
   const [bet, setBet] = useState(5);
   const [reels, setReels] = useState(getRandomReels());
   const [isSpinning, setIsSpinning] = useState(false);
@@ -155,34 +156,49 @@ export default function GameController() {
     }, 2000);
   }
 
+  function restartGame() {
+    setBalance(initialBalance);
+    setReels(getRandomReels());
+  }
+
   return (
     <Container>
-      <Title>Balance: ${balance}</Title>
-      <Reels>
-        {reels.map((sym, i) => (
-          <Reel key={i} spinning={isSpinning}>
-            {sym}
-          </Reel>
-        ))}
-      </Reels>
+      {balance <= 0 ? (
+        <>
+          <Title>Game Over</Title>
+          <p>Your balance is zero.</p>
+          <Button onClick={restartGame}>Restart</Button>
+        </>
+      ) : (
+        <>
+          <Title>Balance: ₹{balance}/-</Title>
+          <Reels>
+            {reels.map((sym, i) => (
+              <Reel key={i} spinning={isSpinning}>
+                {sym}
+              </Reel>
+            ))}
+          </Reels>
 
-      <Controls>
-        <Label>
-          Bet
-          <Input
-            type="number"
-            min="1"
-            max={balance}
-            value={bet}
-            disabled={isSpinning}
-            onChange={(e) => setBet(Number(e.target.value) || 0)}
-          />
-        </Label>
+          <Controls>
+            <Label>
+              Bet
+              <Input
+                type="number"
+                min="1"
+                max={balance}
+                value={bet}
+                disabled={isSpinning}
+                onChange={(e) => setBet(Number(e.target.value) || 0)}
+              />
+            </Label>
 
-        <Button onClick={handleSpin} disabled={isSpinning}>
-          {isSpinning ? 'Spinning…' : 'Spin'}
-        </Button>
-      </Controls>
+            <Button onClick={handleSpin} disabled={isSpinning}>
+              {isSpinning ? 'Spinning…' : 'Spin'}
+            </Button>
+          </Controls>
+        </>
+      )}
     </Container>
   );
 }
